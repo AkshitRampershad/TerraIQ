@@ -9,8 +9,10 @@ how much trust it has earned:
     llm_extracted  -- a model parsed it out of the ordinance text. Unreviewed.
     human_verified -- a person checked it against the published ordinance.
 
-Only `human_verified` values may be used when the engine runs in strict mode.
-Everything else is demo-grade and the report says so on every page.
+Only `human_verified` values may be used when the engine runs in strict mode,
+and that applies to the nulls too: a standard recorded as unregulated has to
+be confirmed unregulated, not merely left blank. Everything else is demo-grade
+and the report says so on every page.
 """
 
 from __future__ import annotations
@@ -224,8 +226,16 @@ class RuleBundle:
 
     @property
     def untrusted(self) -> list[RuleValue]:
-        """Every regulated value that no human has confirmed."""
-        return [r for r in self.rules.values() if r.regulated and not r.trusted]
+        """Every value no human has confirmed, including the nulls.
+
+        An unconfirmed null means "nobody has looked yet", which is a different
+        claim from a confirmed null meaning "this district does not regulate
+        it". Treating the first as trusted would let a bundle with nothing
+        transcribed pass strict mode, which is the worst possible false green
+        light: the engine would report an unbounded envelope and call it
+        verified.
+        """
+        return [r for r in self.rules.values() if not r.trusted]
 
     @property
     def fully_verified(self) -> bool:
@@ -238,5 +248,7 @@ class RuleBundle:
         keys = ", ".join(sorted(r.key for r in self.untrusted))
         raise RuleError(
             f"{self.jurisdiction} {self.district}: strict mode requires every "
-            f"standard to be human-verified against the ordinance. Unverified: {keys}"
+            f"standard to be human-verified against the ordinance -- including "
+            f"the ones recorded as unregulated, which must be confirmed rather "
+            f"than merely absent. Unverified: {keys}"
         )

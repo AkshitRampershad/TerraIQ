@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Walk a person through confirming each standard against the ordinance.
 
-    python -m tools.verify_bundle reference/districts/loudoun-county-va/R-16.json \
+    python -m tools.verify_bundle reference/districts/loudoun-county-va/R16@2023.json \
         --reviewer "Akshit Rampershad"
 
 This is the step that turns a draft into a transcription. For each standard it

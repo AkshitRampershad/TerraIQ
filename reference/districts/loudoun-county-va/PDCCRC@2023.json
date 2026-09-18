@@ -1,0 +1,108 @@
+{
+  "jurisdiction": "Loudoun County, VA",
+  "district": "PDCCRC",
+  "district_name": "Planned Development-Commercial Center (Regional Center)",
+  "code_version": "2023 ordinance",
+  "effective_date": "2023-12-13",
+  "source_url": "https://www.loudoun.gov/1755/Zoning-Ordinance",
+  "rules": {
+    "max_density_units_per_acre": {
+      "value": null,
+      "unit": "units/acre",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_far": {
+      "value": null,
+      "unit": "ratio",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_height_ft": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_lot_coverage_pct": {
+      "value": null,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_stories": {
+      "value": null,
+      "unit": "stories",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_lot_area_per_unit_sf": {
+      "value": null,
+      "unit": "sf/unit",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_lot_area_sf": {
+      "value": null,
+      "unit": "sf",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_lot_width_ft": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_open_space_pct": {
+      "value": null,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "parking_spaces_per_unit": {
+      "value": null,
+      "unit": "spaces/unit",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_front": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_rear": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_side_interior": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_side_street": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for PDCCRC -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    }
+  }
+}

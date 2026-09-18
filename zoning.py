@@ -1,3 +1,4 @@
+import re
 import requests
 
 # Loudoun County retired maps.loudoun.gov and moved its GIS REST services to
@@ -63,3 +64,23 @@ def district_from_attributes(attributes):
         if value not in (None, "", " "):
             return str(value).strip(), field
     return None, None
+
+
+# Loudoun has parcels under both the 2023 ordinance and the legacy 1972 one,
+# and three district codes exist under both with different standards. The
+# zoning record says which applies, so the engine never has to guess.
+ORDINANCE_FIELDS = ("ZO_ORDINANCE", "ORDINANCE", "ZO_ZONE_ORD")
+
+
+def ordinance_from_attributes(attributes):
+    """Pull the governing ordinance out of an ArcGIS attribute dictionary."""
+    if not isinstance(attributes, dict):
+        return None
+    for field in ORDINANCE_FIELDS:
+        value = attributes.get(field)
+        if value not in (None, "", " "):
+            text = str(value).strip()
+            # ZO_ZONE_ORD reads like "R16  2023"; take the year off the end.
+            match = re.search(r"(1[89]\d{2}|20\d{2})\s*$", text)
+            return match.group(1) if match else text
+    return None

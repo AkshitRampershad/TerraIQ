@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Command-line envelope analysis -- no Streamlit, no API key, no network.
 
-    python analyze.py --district R-16 --acres 0.75 --frontage 150
+    python analyze.py --district R16 --acres 0.75 --frontage 150
     python analyze.py --district R-8 --parcel reference/parcels/irregular-corner.json
     python analyze.py --list
 
@@ -16,7 +16,12 @@ import json
 import sys
 from pathlib import Path
 
-from engine.catalog import DistrictNotOnFile, available_districts, load_bundle
+from engine.catalog import (
+    AmbiguousDistrict,
+    DistrictNotOnFile,
+    iter_bundles,
+    load_bundle,
+)
 from engine.envelope import compute_envelope
 from engine.parcel import EdgeKind, Overlay, OverlayKind, Parcel
 from engine.program import ProgramAssumptions, compute_program
@@ -57,7 +62,13 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--list", action="store_true", help="list districts on file and exit")
     ap.add_argument("--jurisdiction", default=JURISDICTION)
-    ap.add_argument("--district", help="zoning district code, e.g. R-16")
+    ap.add_argument("--district", help="zoning district code, e.g. R16")
+    ap.add_argument(
+        "--ordinance",
+        default=None,
+        help="which ordinance the parcel is zoned under, e.g. 2023 (required "
+        "for codes that exist under more than one)",
+    )
     ap.add_argument("--parcel", help="path to a parcel JSON file")
     ap.add_argument("--acres", type=float, help="lot size, if no parcel file is given")
     ap.add_argument("--frontage", type=float, default=0.0, help="street frontage in feet")
@@ -73,14 +84,21 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.list:
-        districts = available_districts(args.jurisdiction)
         print(f"Districts on file for {args.jurisdiction}:")
-        for code in districts:
-            bundle = load_bundle(args.jurisdiction, code)
+        count = 0
+        for code, ordinance, bundle in iter_bundles(args.jurisdiction):
+            count += 1
+            regulated = sum(1 for r in bundle.rules.values() if r.regulated)
             mark = "verified" if bundle.fully_verified else "UNVERIFIED"
-            print(f"  {code:<8} {bundle.district_name}  [{mark}]")
-        if not districts:
+            print(
+                f"  {code:<8} {ordinance:<6} {regulated:>2}/{len(bundle.rules)} "
+                f"standards  [{mark}]  {bundle.district_name}"
+            )
+        if not count:
             print("  (none)")
+        else:
+            print(f"\n{count} bundles. 'standards' counts values that are on file "
+                  f"at all, verified or not.")
         return 0
 
     if not args.district:
@@ -89,8 +107,8 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("give either --parcel or --acres")
 
     try:
-        bundle = load_bundle(args.jurisdiction, args.district)
-    except DistrictNotOnFile as e:
+        bundle = load_bundle(args.jurisdiction, args.district, args.ordinance)
+    except (DistrictNotOnFile, AmbiguousDistrict) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 
@@ -127,4 +145,9 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except BrokenPipeError:
+        # Piping into head closes the stream early; that is not an error.
+        sys.stderr.close()
+        raise SystemExit(0)

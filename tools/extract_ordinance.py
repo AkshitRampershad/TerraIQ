@@ -3,10 +3,10 @@
 
     python -m tools.extract_ordinance \
         --source loudoun-ch2.txt --jurisdiction "Loudoun County, VA" \
-        --district R-16 --district-name "Townhouse/Multifamily Residential" \
+        --district R16 --district-name "Townhouse/Multifamily Residential" \
         --code-version "2023 Zoning Ordinance, adopted 2023-12-13" \
         --effective-date 2023-12-13 \
-        --out reference/districts/loudoun-county-va/R-16.json
+        --out reference/districts/loudoun-county-va/R16@2023.json
 
 The model reads the ordinance and proposes values. Each one must come with a
 verbatim excerpt from the document, and any value whose excerpt does not

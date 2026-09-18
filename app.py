@@ -4,7 +4,12 @@ import plotly.graph_objects as go
 import requests
 import streamlit as st
 
-from engine.catalog import DistrictNotOnFile, available_districts, load_bundle
+from engine.catalog import (
+    AmbiguousDistrict,
+    DistrictNotOnFile,
+    available_codes,
+    load_bundle,
+)
 from engine.envelope import compute_envelope
 from engine.parcel import Parcel
 from engine.program import ProgramAssumptions, compute_program
@@ -12,7 +17,11 @@ from engine.report import render_report
 from engine.validate import validate_concept
 from gpt_functions import generate_building_options
 from layout_utils import plot_site
-from zoning import district_from_attributes, get_zoning_info
+from zoning import (
+    district_from_attributes,
+    get_zoning_info,
+    ordinance_from_attributes,
+)
 
 st.set_page_config(page_title="TerraIQ - Parcel Analyzer", layout="wide")
 st.title("TerraIQ | Loudoun County Parcel Analyzer")
@@ -110,15 +119,19 @@ if "error" in zoning_info:
     st.stop()
 
 district_code, district_field = district_from_attributes(zoning_info)
+ordinance = ordinance_from_attributes(zoning_info)
 if district_code:
-    st.write(f"**District:** `{district_code}`  (from GIS field `{district_field}`)")
+    st.write(
+        f"**District:** `{district_code}`  (from GIS field `{district_field}`)"
+        + (f" &nbsp;·&nbsp; **Ordinance:** `{ordinance}`" if ordinance else "")
+    )
 else:
     st.warning(
         "The zoning layer returned attributes but none of the expected district "
         f"fields. Keys present: {', '.join(sorted(zoning_info))}"
     )
     district_code = st.selectbox(
-        "Select the district manually", available_districts(JURISDICTION)
+        "Select the district manually", available_codes(JURISDICTION)
     )
 
 with st.expander("Raw zoning attributes from GIS"):
@@ -128,7 +141,11 @@ with st.expander("Raw zoning attributes from GIS"):
 st.subheader("3. Buildable envelope (computed, not generated)")
 
 try:
-    bundle = load_bundle(JURISDICTION, district_code)
+    bundle = load_bundle(JURISDICTION, district_code, ordinance)
+except AmbiguousDistrict as e:
+    st.error(str(e))
+    chosen = st.selectbox("Which ordinance is this parcel zoned under?", ["2023", "1972"])
+    bundle = load_bundle(JURISDICTION, district_code, chosen)
 except DistrictNotOnFile as e:
     st.error(str(e))
     st.info(

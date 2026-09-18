@@ -2,7 +2,7 @@
 """Check rule bundles for completeness, citation quality and plausibility.
 
     python -m tools.lint_bundles                     # every shipped bundle
-    python -m tools.lint_bundles path/to/R-16.json
+    python -m tools.lint_bundles path/to/R16@2023.json
 
 Catches the transcription mistakes that are easy to make and expensive to
 find later: a missing key, a citation that is still a to-be-confirmed

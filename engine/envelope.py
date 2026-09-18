@@ -165,7 +165,45 @@ def compute_envelope(
             )
         )
 
+    # A stand-in rectangle is only as good as the real lot is rectangular.
+    if parcel.compactness is not None and parcel.compactness < 0.60:
+        findings.append(
+            Finding(
+                severity="warning",
+                title="The real lot is markedly non-rectangular",
+                detail=(
+                    f"Shape compactness of the recorded lot is "
+                    f"{parcel.compactness:.2f} (a square is about 0.79). The lot "
+                    "is elongated, ragged or pinched, so a rectangular stand-in "
+                    "puts the lot lines in the wrong places and the setback "
+                    "losses below are unreliable for this parcel in particular. "
+                    "Get the boundary before relying on any number here."
+                ),
+            )
+        )
+
     lot_area = parcel.area_sf
+
+    # A district whose standards have not been transcribed yields an envelope
+    # equal to the whole lot. That number is arithmetically correct and
+    # completely meaningless, and it looks like an answer, so say plainly that
+    # it is not one.
+    setback_keys = [k.setback_rule_key for k in EdgeKind]
+    if all(bundle.number(key) is None for key in setback_keys):
+        findings.append(
+            Finding(
+                severity="warning",
+                title="No setbacks are on file -- this is not a buildable envelope",
+                detail=(
+                    f"The bundle for {bundle.district} records no setback for any "
+                    "lot line, so nothing has been subtracted and the 'buildable "
+                    "area' below is simply the whole lot. It is not a finding "
+                    "about this parcel. Transcribe the district's standards from "
+                    "the ordinance before reading anything into these numbers."
+                ),
+                citation=bundle.cite("setback_front"),
+            )
+        )
 
     # --- Conformance of the lot itself -----------------------------------
     min_area = bundle.number("min_lot_area_sf")

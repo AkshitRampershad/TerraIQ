@@ -219,3 +219,18 @@ def test_engine_is_deterministic():
     )
     runs = {compute_envelope(rect(100, 200), b).max_footprint_sf for _ in range(10)}
     assert len(runs) == 1
+
+
+def test_a_district_with_no_setbacks_on_file_says_so_loudly():
+    """An untranscribed district yields the whole lot; that is not an answer."""
+    env = compute_envelope(rect(100, 200), bundle(max_height_ft=35))
+    assert env.buildable_area_sf == pytest.approx(20_000)
+    assert any("not a buildable envelope" in f.title for f in env.findings)
+
+
+def test_a_district_with_setbacks_does_not_raise_that_finding():
+    env = compute_envelope(
+        rect(100, 200),
+        bundle(setback_front=25, setback_rear=25, setback_side_interior=10),
+    )
+    assert not any("not a buildable envelope" in f.title for f in env.findings)

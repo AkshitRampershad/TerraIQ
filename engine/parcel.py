@@ -88,6 +88,11 @@ class Parcel:
     geometry_source: str = "unspecified"
     edge_classification_source: str = "unspecified"
     is_assumed_shape: bool = False
+    # Isoperimetric quotient of the REAL lot, 4*pi*A/P^2, when the true area and
+    # perimeter are known but the boundary is not. 1.0 is a circle, ~0.785 a
+    # square; the lower it goes the more elongated or ragged the real lot, and
+    # the worse any rectangular stand-in approximates it.
+    compactness: float | None = None
 
     def __post_init__(self) -> None:
         if len(self.coords) < 3:
@@ -197,6 +202,85 @@ class Parcel:
             geometry_source="ASSUMED rectangle derived from a stated lot area",
             edge_classification_source="ASSUMED (short side presumed to front the street)",
             is_assumed_shape=True,
+        )
+
+
+    @classmethod
+    def from_area_and_perimeter(
+        cls,
+        parcel_id: str,
+        area_sf: float,
+        perimeter_ft: float,
+        *,
+        address: str | None = None,
+        jurisdiction: str | None = None,
+        zoning_district: str | None = None,
+        corner_lot: bool = False,
+    ) -> Parcel:
+        """Build the rectangle that matches a lot's real area AND real perimeter.
+
+        County parcel tables routinely publish an area and a perimeter without
+        the boundary itself. Those two numbers pin down a rectangle exactly: a
+        w x d rectangle with perimeter P and area A satisfies
+
+            w + d = P/2,  w * d = A
+
+        so w and d are the roots of x^2 - (P/2)x + A = 0. That is a far better
+        stand-in than assuming a depth-to-width ratio, because it is derived
+        from the lot's own measurements rather than from a typical lot.
+
+        It is still a stand-in. A real boundary is not a rectangle, and the
+        `compactness` recorded here says how badly that bites: when the
+        discriminant is negative the lot is more compact than any rectangle can
+        be, and a square of the same area is used instead.
+
+        The short side is taken as the street frontage, following the usual
+        platting pattern. Where that is wrong the front and side setbacks are
+        effectively swapped, which is exactly why this is labelled assumed.
+        """
+        if area_sf <= 0:
+            raise ValueError("parcel area must be positive")
+        if perimeter_ft <= 0:
+            raise ValueError("parcel perimeter must be positive")
+
+        half = perimeter_ft / 2.0
+        discriminant = half * half - 4.0 * area_sf
+
+        if discriminant >= 0:
+            root = math.sqrt(discriminant)
+            depth = (half + root) / 2.0
+            width = (half - root) / 2.0
+            basis = (
+                f"rectangle fitted to the recorded area ({area_sf:,.0f} sf) and "
+                f"perimeter ({perimeter_ft:,.0f} ft): {width:,.0f} ft frontage "
+                f"x {depth:,.0f} ft deep"
+            )
+        else:
+            # No rectangle has this area and this perimeter -- the real lot is
+            # rounder than a rectangle can be. Match the area and say so.
+            width = depth = math.sqrt(area_sf)
+            basis = (
+                f"square of the recorded area ({area_sf:,.0f} sf); the recorded "
+                f"perimeter ({perimeter_ft:,.0f} ft) is shorter than any "
+                f"rectangle of that area can have, so the real lot is more "
+                f"compact than a rectangle"
+            )
+
+        side_kind = EdgeKind.SIDE_STREET if corner_lot else EdgeKind.SIDE_INTERIOR
+        return cls(
+            parcel_id=parcel_id,
+            coords=[(0.0, 0.0), (width, 0.0), (width, depth), (0.0, depth)],
+            edge_kinds=[EdgeKind.FRONT, side_kind, EdgeKind.REAR, EdgeKind.SIDE_INTERIOR],
+            address=address,
+            jurisdiction=jurisdiction,
+            zoning_district=zoning_district,
+            geometry_source=f"ASSUMED shape -- {basis}",
+            edge_classification_source=(
+                "ASSUMED (short side presumed to front the street"
+                + (", one side presumed to abut a street)" if corner_lot else ")")
+            ),
+            is_assumed_shape=True,
+            compactness=4.0 * math.pi * area_sf / (perimeter_ft**2),
         )
 
 

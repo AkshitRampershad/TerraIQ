@@ -42,15 +42,74 @@ not fall back to a "typical" district and it does not ask a model to recall the
 standards — an invented setback is worse than no answer, because it looks like
 an answer.
 
-### Known gap: lot geometry
+### County data: what it does and does not provide
 
-The GIS query returns zoning for a *point*, not the parcel polygon, so the app
-currently synthesizes a rectangular lot from a typed-in acreage and labels it
-as assumed. Setback losses depend heavily on real shape, frontage and
-orientation, so those areas are indicative until the parcel layer is wired in.
-The engine itself already handles arbitrary polygons — see
-`reference/parcels/irregular-corner.json`, a corner lot with a clipped corner
-and a sewer easement that splits the buildable area in two.
+`reference/loudoun-gis/` holds CSV exports of Loudoun's GIS layers. They
+establish the district catalog and a parcel index, and they are missing the two
+things the engine most wants.
+
+**The district catalog is now authoritative.** 54 district codes with the
+county's own names and descriptions, split by ordinance — 2023 and the legacy
+1972. Three codes (`PDH3`, `PDH6`, `PDRDP`) exist under *both* with different
+standards, so bundles are named `<CODE>@<ORDINANCE>.json` and `load_bundle`
+refuses to pick one for you; pass the ordinance, which the parcel's zoning
+record carries in `ZO_ORDINANCE`. Earlier versions of this repo shipped
+hand-invented codes (`R-16`) that do not exist in Loudoun — the real spelling
+is `R16`.
+
+**Ten districts state a density in prose**, and that is extracted by pattern
+match with the sentence kept as the source excerpt, marked machine-extracted
+and awaiting review. `R4` and friends state it as "1 unit per 10,000 square
+feet", which is a lot-area-per-unit standard rather than units per acre, and is
+recorded as such.
+
+**No dimensional standards.** Across all 54 descriptions there is not one
+mention of a setback, yard, height, floor area ratio or lot coverage. Those
+live in the ordinance text. Until they are transcribed, a district's envelope
+is the whole lot, and the report says in as many words that this is not a
+buildable envelope.
+
+**No polygon geometry anywhere.** `SHAPE_Length` and `SHAPE_Area` are ArcGIS
+shape *metadata*, not coordinates. The only real coordinates are 131,413 parcel
+centroids — one point per parcel. Consequences: no true setback geometry; the
+zoning layer cannot be joined to parcels without a spatial join, so the live
+ArcGIS query in `zoning.py` is still how a parcel's district is found; and the
+soils and quarry overlays have neither geometry nor a parcel key, so they
+cannot be applied at all.
+
+**71% of the parcel IDs were destroyed by Excel.** `PA_MCPI` is a 12-character
+zero-padded string; Excel treated it as a number, stripping leading zeros and,
+past 11 digits, rewriting it as 3-significant-figure scientific notation:
+
+```
+PA_MCPI formats in Loudoun_Parcels.csv:
+  SCIENTIFIC NOTATION    92,998   e.g. '2.17E+11'
+  plain digits           38,819   e.g. '28187793000'
+```
+
+`ingest.loudoun.normalize_mcpi` restores the leading zeros, which recovers
+38,685 joinable parcels. The scientific-notation IDs have lost nine digits and
+are refused rather than reconstructed — a guessed ID joins to the wrong parcel.
+**Re-export with the ID column typed as text** and this goes away.
+
+### Lot shape: the equivalent rectangle
+
+Without boundaries, setbacks cannot be measured properly. What the parcel table
+does give is a real area and a real perimeter, and those pin down a rectangle
+exactly: for a w x d rectangle, `w + d = P/2` and `w * d = A`, so w and d are
+the roots of `x² - (P/2)x + A = 0`. `Parcel.from_area_and_perimeter` uses the
+lot's own measurements rather than a typical depth-to-width ratio. Across the
+county 93% of parcels admit such a rectangle; the other 7% are rounder than any
+rectangle can be and fall back to a square of the same area.
+
+It is still a stand-in, and the engine says how good a one. Each parcel records
+its isoperimetric quotient `4πA/P²` (1.0 a circle, 0.785 a square); below 0.60
+the report warns that the lot is elongated or ragged enough that a rectangle
+puts the lot lines in the wrong places. County median is 0.70, with the 10th
+percentile at 0.44.
+
+To get real geometry, re-export as GeoJSON or shapefile rather than CSV, or
+query the ArcGIS REST endpoint with `returnGeometry=true`.
 
 ### Transcribing a jurisdiction's standards
 
@@ -62,15 +121,15 @@ built so that no step can quietly invent a number.
 # 1. Draft from the ordinance text (needs GROQ_API_KEY and a local copy)
 python -m tools.extract_ordinance \
     --source loudoun-chapter-2.pdf \
-    --grep "R-16" \
-    --jurisdiction "Loudoun County, VA" --district R-16 \
+    --grep "R16" \
+    --jurisdiction "Loudoun County, VA" --district R16 \
     --district-name "Townhouse/Multifamily Residential" \
     --code-version "2023 Zoning Ordinance, adopted 2023-12-13" \
     --effective-date 2023-12-13 \
-    --out reference/districts/loudoun-county-va/R-16.json
+    --out reference/districts/loudoun-county-va/R16@2023.json
 
 # 2. Review it — this is the only thing that can set human_verified
-python -m tools.verify_bundle reference/districts/loudoun-county-va/R-16.json \
+python -m tools.verify_bundle reference/districts/loudoun-county-va/R16@2023.json \
     --reviewer "Your Name"
 
 # 3. Check for transcription slips
@@ -109,9 +168,10 @@ The engine runs without Streamlit, an API key, or a network connection:
 
 ```bash
 python analyze.py --list
-python analyze.py --district R-16 --acres 0.75 --frontage 150
-python analyze.py --district R-16 --parcel reference/parcels/irregular-corner.json
-python analyze.py --district R-16 --acres 0.75 --strict   # refuses: standards unverified
+python analyze.py --district R16 --acres 0.75 --frontage 150
+python analyze.py --district R16 --parcel reference/parcels/irregular-corner.json
+python analyze.py --district R16 --acres 0.75 --strict   # refuses: standards unverified
+python analyze.py --district PDH3 --ordinance 1972 --acres 1.0
 ```
 
 ### Tests
@@ -120,11 +180,12 @@ python analyze.py --district R-16 --acres 0.75 --strict   # refuses: standards u
 python -m pytest tests/ -q
 ```
 
-89 tests covering setback geometry against hand calculations, corner lots,
+127 tests covering setback geometry against hand calculations, corner lots,
 irregular boundaries, easement subtraction, which constraint binds, the
-validation layer that catches model output exceeding the envelope, and the
+validation layer that catches model output exceeding the envelope, the
 transcription pipeline — including that a fabricated ordinance quote is
-rejected. See `tests/README.md`.
+rejected — and the county data readers, including that an Excel-destroyed
+parcel ID is refused rather than reconstructed. See `tests/README.md`.
 
 Scope: zoning lookups are specific to Loudoun County, VA (the GIS endpoint and
 geocoding query are hardcoded to that jurisdiction). This is a feasibility
@@ -173,7 +234,10 @@ Run standalone with `uvicorn api.ingestion_service:app --reload --port 8000` (th
 | `tools/extract_ordinance.py` | Draft a bundle from ordinance text; discards any value it cannot quote |
 | `tools/verify_bundle.py` | Interactive human review — the only path to `human_verified` |
 | `tools/lint_bundles.py` | Completeness, citation quality and plausibility checks |
-| `tests/` | 89 tests, offline |
+| `ingest/loudoun.py` | Readers for the county CSV exports, with a report of what had to be discarded |
+| `tools/build_district_catalog.py` | Generates bundle stubs for all 54 districts from the county zoning layer |
+| `reference/loudoun-gis/` | County GIS exports and a note on their limits |
+| `tests/` | 127 tests, offline |
 | `zoning.py` | Queries Loudoun County's zoning GIS endpoint |
 | `gpt_functions.py` | Asks Groq to allocate space within a computed envelope |
 | `layout_utils.py` | Renders lot, envelope and proposed building as a Plotly site plan |

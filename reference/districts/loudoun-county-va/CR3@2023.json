@@ -1,0 +1,109 @@
+{
+  "jurisdiction": "Loudoun County, VA",
+  "district": "CR3",
+  "district_name": "Countryside Residential-3",
+  "code_version": "2023 ordinance",
+  "effective_date": "2023-12-13",
+  "source_url": "https://www.loudoun.gov/1755/Zoning-Ordinance",
+  "rules": {
+    "max_density_units_per_acre": {
+      "value": null,
+      "unit": "units/acre",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_far": {
+      "value": null,
+      "unit": "ratio",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_height_ft": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_lot_coverage_pct": {
+      "value": null,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "max_stories": {
+      "value": null,
+      "unit": "stories",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_lot_area_per_unit_sf": {
+      "value": 40000.0,
+      "unit": "sf/unit",
+      "citation": "Loudoun County zoning GIS layer, ZD_ZONE_DESC for CR3 (2023 ordinance) -- description field, NOT the ordinance text",
+      "provenance": "llm_extracted",
+      "source_excerpt": "Residential development with a maximum density of 1 unit per 40,000 square feet with on-site well and wastewater.",
+      "note": "Extracted by pattern match from the county's GIS description field."
+    },
+    "min_lot_area_sf": {
+      "value": null,
+      "unit": "sf",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_lot_width_ft": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "min_open_space_pct": {
+      "value": null,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "parking_spaces_per_unit": {
+      "value": null,
+      "unit": "spaces/unit",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_front": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_rear": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_side_interior": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    },
+    "setback_side_street": {
+      "value": null,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance (2023), district standards for CR3 -- NOT YET TRANSCRIBED",
+      "provenance": "placeholder",
+      "note": "The county's zoning GIS layer carries district identity only. Transcribe this from the ordinance text with tools.extract_ordinance or by hand, then confirm it with tools.verify_bundle."
+    }
+  }
+}
