@@ -1,0 +1,24 @@
+{
+  "parcel_id": "SAMPLE-CORNER-01",
+  "address": "Sample corner parcel, Loudoun County, VA",
+  "jurisdiction": "Loudoun County, VA",
+  "zoning_district": "R-16",
+  "geometry_source": "SAMPLE geometry, hand-drawn to exercise the engine",
+  "edge_classification_source": "SAMPLE classification",
+  "_comment": "A corner lot with a clipped rear corner and a sewer easement running through it. Coordinates are plane feet.",
+  "coords": [
+    [0, 0], [180, 0], [180, 140], [140, 190], [0, 190]
+  ],
+  "edge_kinds": [
+    "front", "side_street", "rear", "rear", "side_interior"
+  ],
+  "overlays": [
+    {
+      "name": "20 ft sanitary sewer easement",
+      "kind": "easement",
+      "coords": [[70, 0], [90, 0], [90, 190], [70, 190]],
+      "citation": "SAMPLE - plat reference not real",
+      "buildable": false
+    }
+  ]
+}

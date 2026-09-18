@@ -1,0 +1,40 @@
+{
+  "_comment": [
+    "Template for a district rule bundle. Copy, rename to the district code,",
+    "and fill in from the published ordinance.",
+    "",
+    "Every rule needs a citation. A district that genuinely does not regulate a",
+    "quantity records \"value\": null -- never omit the key, because omission is",
+    "how a missing standard silently becomes a zero.",
+    "",
+    "provenance:",
+    "  placeholder    - structural stand-in, nobody has read the ordinance",
+    "  llm_extracted  - a model parsed it from the ordinance text, unreviewed",
+    "  human_verified - a person checked it against the published ordinance,",
+    "                   and put their name in verified_by",
+    "",
+    "Only human_verified bundles pass strict mode."
+  ],
+  "jurisdiction": "",
+  "district": "",
+  "district_name": "",
+  "code_version": "",
+  "effective_date": "",
+  "source_url": "",
+  "rules": {
+    "min_lot_area_sf": {"value": null, "unit": "sf", "citation": "", "provenance": "placeholder"},
+    "min_lot_width_ft": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "setback_front": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "setback_rear": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "setback_side_interior": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "setback_side_street": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "max_lot_coverage_pct": {"value": null, "unit": "%", "citation": "", "provenance": "placeholder"},
+    "max_far": {"value": null, "unit": "ratio", "citation": "", "provenance": "placeholder"},
+    "max_height_ft": {"value": null, "unit": "ft", "citation": "", "provenance": "placeholder"},
+    "max_stories": {"value": null, "unit": "stories", "citation": "", "provenance": "placeholder"},
+    "max_density_units_per_acre": {"value": null, "unit": "units/acre", "citation": "", "provenance": "placeholder"},
+    "min_lot_area_per_unit_sf": {"value": null, "unit": "sf/unit", "citation": "", "provenance": "placeholder"},
+    "min_open_space_pct": {"value": null, "unit": "%", "citation": "", "provenance": "placeholder"},
+    "parking_spaces_per_unit": {"value": null, "unit": "spaces/unit", "citation": "", "provenance": "placeholder"}
+  }
+}

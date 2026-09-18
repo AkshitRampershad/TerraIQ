@@ -1,8 +1,8 @@
-# UrbanAI
+# TerraIQ
 
 Two things live in this repo, both real and runnable:
 
-1. **TerraIQ Parcel Analyzer** (`app.py`) — an AI agent that looks up a parcel's zoning in Loudoun County, VA and proposes zoning-constrained concept building plans.
+1. **TerraIQ Parcel Analyzer** (`app.py`) — looks up a parcel's zoning in Loudoun County, VA, **computes** its buildable envelope with a deterministic rule engine, and then has an LLM propose concept plans *inside* that envelope.
 2. **Portfolio Intelligence** (`pages/1_Portfolio_Intelligence.py`) — a Bronze/Silver/Gold data pipeline, a trained ML site-ranking model, a FastAPI ingestion service, and an LLM-generated executive report, built to demonstrate the data engineering work described in the "Data Engineer / AI Practitioner" experience entry on [akshitrampershad.com](https://akshitrampershad.com).
 
 Both are one Streamlit app — Portfolio Intelligence shows up as a second page in the sidebar.
@@ -10,11 +10,74 @@ Both are one Streamlit app — Portfolio Intelligence shows up as a second page 
 ## 1. TerraIQ Parcel Analyzer
 
 1. **Locate the parcel** — enter an address in Loudoun County (geocoded via [Nominatim/OpenStreetMap](https://nominatim.openstreetmap.org/)), or provide latitude/longitude directly.
-2. **Fetch zoning data** — the app queries [Loudoun County's public zoning ArcGIS service](https://maps.loudoun.gov/) for the parcel's zoning attributes in real time.
-3. **Generate concept plans** — the zoning info and parcel size are sent to an LLM ([Groq](https://groq.com/)-hosted GPT-OSS 120B (openai/gpt-oss-120b)) asking for 2–3 building concepts that maximize investment potential without violating the zoning rules.
-4. **Visualize the layout** — each concept's footprint is rendered as an interactive Plotly building outline.
+2. **Fetch zoning data** — the app queries [Loudoun County's public zoning GIS service](https://logis.loudoun.gov/) for the parcel's zoning district in real time.
+3. **Compute the buildable envelope** — a deterministic rule engine (`engine/`) applies the district's dimensional standards to the lot geometry. No model involved: same input, same answer, every time, with the code section cited for every number.
+4. **Generate concept plans** — the computed envelope is handed to an LLM ([Groq](https://groq.com/)-hosted `openai/gpt-oss-120b`) as a fixed budget. The model allocates space within it; it never decides how much may be built.
+5. **Re-check every concept** — anything the model returns is validated back against the envelope. A concept that exceeds a limit, or places a footprint in a setback, is reported as a violation instead of being drawn.
 
-Scope: zoning lookups are specific to Loudoun County, VA (the ArcGIS endpoint and geocoding query are hardcoded to that jurisdiction); concepts are a starting point for exploration, not a substitute for a licensed architect or zoning attorney.
+### Why the envelope is computed rather than generated
+
+Everything downstream of a concept plan — permit review, an architect's stamp,
+any claim that a design is compliant — depends on the numbers being
+reproducible and attributable. A floor-area figure that a model produced at
+`temperature=0.5` is neither: it changes between runs, and it cannot name the
+ordinance section it came from. So the split is strict:
+
+| Decided by the rule engine | Decided by the model |
+| --- | --- |
+| Buildable area after setbacks and overlays | How to shape a footprint within it |
+| Maximum footprint, stories, height | Unit mix and floor plate strategy |
+| Gross floor area, unit yield, parking demand | Which trade-offs to present, and why |
+| Which rule binds, and its citation | Narrative explanation |
+
+**Every dimensional standard carries a provenance marker** — `placeholder`,
+`llm_extracted`, or `human_verified`. Only `human_verified` values pass strict
+mode (`--strict`). **The district bundles currently shipped in
+`reference/districts/` are all placeholders**: structurally plausible, not
+transcribed from Loudoun's ordinance. Every report says so on its face. They
+exist to exercise the engine, not to answer a zoning question.
+
+When a district has no bundle on file, the engine stops and says so. It does
+not fall back to a "typical" district and it does not ask a model to recall the
+standards — an invented setback is worse than no answer, because it looks like
+an answer.
+
+### Known gap: lot geometry
+
+The GIS query returns zoning for a *point*, not the parcel polygon, so the app
+currently synthesizes a rectangular lot from a typed-in acreage and labels it
+as assumed. Setback losses depend heavily on real shape, frontage and
+orientation, so those areas are indicative until the parcel layer is wired in.
+The engine itself already handles arbitrary polygons — see
+`reference/parcels/irregular-corner.json`, a corner lot with a clipped corner
+and a sewer easement that splits the buildable area in two.
+
+### Command line
+
+The engine runs without Streamlit, an API key, or a network connection:
+
+```bash
+python analyze.py --list
+python analyze.py --district R-16 --acres 0.75 --frontage 150
+python analyze.py --district R-16 --parcel reference/parcels/irregular-corner.json
+python analyze.py --district R-16 --acres 0.75 --strict   # refuses: standards unverified
+```
+
+### Tests
+
+```bash
+python -m pytest tests/ -q
+```
+
+61 tests covering setback geometry against hand calculations, corner lots,
+irregular boundaries, easement subtraction, which constraint binds, and the
+validation layer that catches model output exceeding the envelope. See
+`tests/README.md`.
+
+Scope: zoning lookups are specific to Loudoun County, VA (the GIS endpoint and
+geocoding query are hardcoded to that jurisdiction). This is a feasibility
+tool, not a substitute for a licensed architect, a zoning attorney, or the
+jurisdiction's own review.
 
 **Data provenance:** all parcel/zoning data is synthetically generated (`pipeline/generate_sample_data.py`), seeded for reproducibility, with field names and value ranges modeled on public Loudoun County parcel/zoning structure. It is not scraped or downloaded from any live system, and realistic data-quality issues (nulls, negative values, duplicates) are deliberately injected so the Silver-layer quality checks have real problems to catch.
 
@@ -38,15 +101,27 @@ Run standalone with `uvicorn api.ingestion_service:app --reload --port 8000` (th
 - **[scikit-learn](https://scikit-learn.org/)** — site-ranking model training (stand-in for Databricks AutoML)
 - **[FastAPI](https://fastapi.tiangolo.com/)** — parcel ingestion/query service
 - **[Plotly](https://plotly.com/python/)** — building layout visualization
+- **[Shapely](https://shapely.readthedocs.io/)** — the envelope geometry (per-lot-line setback buffering, overlay subtraction)
 - **Loudoun County ArcGIS REST API** / **Nominatim (OpenStreetMap)** — zoning data source and geocoding, for TerraIQ only
 
 ## Project Structure
 | Path | Purpose |
 | --- | --- |
-| `app.py` | TerraIQ Streamlit UI — parcel input, zoning lookup, concept generation |
-| `zoning.py` | Queries Loudoun County's zoning ArcGIS endpoint |
-| `gpt_functions.py` | Calls Groq to generate zoning-constrained building concepts |
-| `layout_utils.py` | Renders a concept's footprint as a Plotly figure |
+| `app.py` | TerraIQ Streamlit UI — parcel input, zoning lookup, envelope, concepts |
+| `analyze.py` | CLI for the engine — no Streamlit, no API key, no network |
+| `engine/rules.py` | Rule bundles: every standard carries a citation and a provenance marker |
+| `engine/parcel.py` | Lot geometry and lot-line classification |
+| `engine/envelope.py` | Deterministic buildable-envelope computation |
+| `engine/program.py` | Massing, unit yield, parking demand |
+| `engine/validate.py` | Checks model-proposed concepts against the envelope |
+| `engine/report.py` | Renders the analysis with the authority for every number |
+| `engine/catalog.py` | District code → rule bundle, refusing to guess |
+| `reference/districts/` | Per-district rule bundles (currently placeholders) |
+| `reference/parcels/` | Sample parcel geometry |
+| `tests/` | 61 engine tests, offline |
+| `zoning.py` | Queries Loudoun County's zoning GIS endpoint |
+| `gpt_functions.py` | Asks Groq to allocate space within a computed envelope |
+| `layout_utils.py` | Renders lot, envelope and proposed building as a Plotly site plan |
 | `groq_client.py` | Shared Groq API config/key lookup (Streamlit secrets or env var) |
 | `pages/1_Portfolio_Intelligence.py` | Portfolio Intelligence Streamlit page |
 | `pipeline/generate_sample_data.py` | Synthetic parcel/zoning dataset generator |
@@ -66,8 +141,8 @@ Run standalone with `uvicorn api.ingestion_service:app --reload --port 8000` (th
 
 ### Setup
 ```bash
-git clone https://github.com/AkshitRampershad/UrbanAI.git
-cd UrbanAI
+git clone https://github.com/AkshitRampershad/TerraIQ.git
+cd TerraIQ
 pip install -r requirements.txt
 ```
 

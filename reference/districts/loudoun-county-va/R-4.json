@@ -1,0 +1,122 @@
+{
+  "jurisdiction": "Loudoun County, VA",
+  "district": "R-4",
+  "district_name": "Single Family Residential - 4 units/acre",
+  "code_version": "PLACEHOLDER - ordinance version not yet recorded",
+  "effective_date": "unknown",
+  "source_url": "https://www.loudoun.gov/zoningordinance",
+  "rules": {
+    "min_lot_area_sf": {
+      "value": 8000,
+      "unit": "sf",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "min_lot_width_ft": {
+      "value": 70,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "setback_front": {
+      "value": 25,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "setback_rear": {
+      "value": 25,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "setback_side_interior": {
+      "value": 8,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "setback_side_street": {
+      "value": 20,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "max_lot_coverage_pct": {
+      "value": 35,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "max_far": {
+      "value": null,
+      "unit": "ratio",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "max_height_ft": {
+      "value": 35,
+      "unit": "ft",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "max_stories": {
+      "value": null,
+      "unit": "stories",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "max_density_units_per_acre": {
+      "value": 4,
+      "unit": "units/acre",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "min_lot_area_per_unit_sf": {
+      "value": null,
+      "unit": "sf/unit",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "min_open_space_pct": {
+      "value": 15,
+      "unit": "%",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    },
+    "parking_spaces_per_unit": {
+      "value": 2.0,
+      "unit": "spaces/unit",
+      "citation": "Loudoun County Zoning Ordinance, district standards table for R-4 (section to be confirmed)",
+      "provenance": "placeholder",
+      "source_url": "https://www.loudoun.gov/zoningordinance",
+      "note": "PLACEHOLDER. Not confirmed against the published ordinance. Structurally plausible for this district type; do not rely on the number."
+    }
+  }
+}
