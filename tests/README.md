@@ -18,3 +18,4 @@ What it is actually checking:
 | `test_validate.py` | Model output that exceeds the envelope is caught — including a footprint that is the right size but in the wrong place |
 | `test_catalog.py` | An unknown district refuses rather than guessing |
 | `test_cli.py` | End-to-end runs over the shipped bundles and sample parcel |
+| `test_tools.py` | The transcription pipeline: a fabricated ordinance quote is discarded, verification stamps a named reviewer, the linter catches swapped setbacks and unit slips |

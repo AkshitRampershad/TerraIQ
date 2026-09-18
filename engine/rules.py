@@ -59,7 +59,9 @@ class RuleValue:
     citation: str
     provenance: Provenance = Provenance.PLACEHOLDER
     source_url: str | None = None
+    source_excerpt: str | None = None
     verified_by: str | None = None
+    verified_on: str | None = None
     note: str | None = None
 
     def __post_init__(self) -> None:
@@ -72,6 +74,27 @@ class RuleValue:
             raise RuleError(f"rule {self.key!r} value must be numeric or null")
         if self.value is not None and self.value < 0:
             raise RuleError(f"rule {self.key!r} value must not be negative")
+        if self.provenance is Provenance.HUMAN_VERIFIED and not self.verified_by:
+            raise RuleError(
+                f"rule {self.key!r} is marked human_verified but names nobody. "
+                f"Verification means a person put their name to a number; set "
+                f"verified_by."
+            )
+
+    def to_dict(self) -> dict:
+        """Serialize back to the bundle JSON shape, dropping empty fields."""
+        out = {
+            "value": self.value,
+            "unit": self.unit,
+            "citation": self.citation,
+            "provenance": self.provenance.value,
+            "source_url": self.source_url,
+            "source_excerpt": self.source_excerpt,
+            "verified_by": self.verified_by,
+            "verified_on": self.verified_on,
+            "note": self.note,
+        }
+        return {k: v for k, v in out.items() if v is not None or k == "value"}
 
     @property
     def regulated(self) -> bool:
@@ -130,7 +153,9 @@ class RuleBundle:
                 citation=spec.get("citation", ""),
                 provenance=provenance,
                 source_url=spec.get("source_url"),
+                source_excerpt=spec.get("source_excerpt"),
                 verified_by=spec.get("verified_by"),
+                verified_on=spec.get("verified_on"),
                 note=spec.get("note"),
             )
 
@@ -141,6 +166,35 @@ class RuleBundle:
             code_version=raw["code_version"],
             effective_date=raw["effective_date"],
             source_url=raw.get("source_url"),
+            rules=rules,
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "jurisdiction": self.jurisdiction,
+            "district": self.district,
+            "district_name": self.district_name,
+            "code_version": self.code_version,
+            "effective_date": self.effective_date,
+            "source_url": self.source_url,
+            "rules": {key: self.rules[key].to_dict() for key in sorted(self.rules)},
+        }
+
+    def save(self, path: str | Path) -> None:
+        """Write the bundle back to disk, preserving key order for clean diffs."""
+        Path(path).write_text(json.dumps(self.to_dict(), indent=2) + "\n")
+
+    def with_rule(self, rule: RuleValue) -> RuleBundle:
+        """A copy of this bundle with one rule replaced."""
+        rules = dict(self.rules)
+        rules[rule.key] = rule
+        return RuleBundle(
+            jurisdiction=self.jurisdiction,
+            district=self.district,
+            district_name=self.district_name,
+            code_version=self.code_version,
+            effective_date=self.effective_date,
+            source_url=self.source_url,
             rules=rules,
         )
 

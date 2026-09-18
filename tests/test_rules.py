@@ -67,6 +67,9 @@ def test_round_trip_from_json(tmp_path):
                         "unit": "ft",
                         "citation": "sec. 1",
                         "provenance": "human_verified",
+                        "verified_by": "A. Reviewer",
+                        "verified_on": "2026-09-18",
+                        "source_excerpt": "Front yard: 20 feet.",
                     }
                 },
             }
@@ -99,3 +102,42 @@ def test_unknown_provenance_rejected(tmp_path):
     )
     with pytest.raises(RuleError, match="unknown provenance"):
         RuleBundle.from_json(path)
+
+
+def test_human_verified_must_name_a_person():
+    """Verification is somebody putting their name to a number."""
+    with pytest.raises(RuleError, match="names nobody"):
+        RuleValue(
+            key="setback_front",
+            value=20,
+            unit="ft",
+            citation="sec. 1",
+            provenance=Provenance.HUMAN_VERIFIED,
+        )
+
+
+def test_bundle_round_trips_through_disk(tmp_path):
+    b = bundle(setback_front=20, max_height_ft=35)
+    path = tmp_path / "out.json"
+    b.save(path)
+    again = RuleBundle.from_json(path)
+    assert again.number("setback_front") == 20
+    assert again.number("max_height_ft") == 35
+    assert again.fully_verified
+    assert again.rules["setback_front"].verified_by == "Test Reviewer"
+
+
+def test_with_rule_replaces_without_mutating():
+    b = bundle(setback_front=20)
+    updated = b.with_rule(
+        RuleValue(
+            key="setback_front",
+            value=25,
+            unit="ft",
+            citation="sec. 9",
+            provenance=Provenance.HUMAN_VERIFIED,
+            verified_by="A. Reviewer",
+        )
+    )
+    assert b.number("setback_front") == 20
+    assert updated.number("setback_front") == 25

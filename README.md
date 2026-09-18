@@ -52,6 +52,57 @@ The engine itself already handles arbitrary polygons — see
 `reference/parcels/irregular-corner.json`, a corner lot with a clipped corner
 and a sewer easement that splits the buildable area in two.
 
+### Transcribing a jurisdiction's standards
+
+The bundles ship as placeholders because a real one has to come out of the
+published ordinance. `tools/` is the pipeline for getting there, and it is
+built so that no step can quietly invent a number.
+
+```bash
+# 1. Draft from the ordinance text (needs GROQ_API_KEY and a local copy)
+python -m tools.extract_ordinance \
+    --source loudoun-chapter-2.pdf \
+    --grep "R-16" \
+    --jurisdiction "Loudoun County, VA" --district R-16 \
+    --district-name "Townhouse/Multifamily Residential" \
+    --code-version "2023 Zoning Ordinance, adopted 2023-12-13" \
+    --effective-date 2023-12-13 \
+    --out reference/districts/loudoun-county-va/R-16.json
+
+# 2. Review it — this is the only thing that can set human_verified
+python -m tools.verify_bundle reference/districts/loudoun-county-va/R-16.json \
+    --reviewer "Your Name"
+
+# 3. Check for transcription slips
+python -m tools.lint_bundles
+```
+
+**The extraction step requires evidence.** Every value the model proposes must
+come with a verbatim excerpt, and that excerpt is checked against the source
+document character for character (whitespace-normalized, so PDF line wrapping
+is fine). A value whose quote is not in the document is discarded before it
+reaches the file:
+
+```
+- max_far: quoted excerpt is not present in loudoun-chapter-2.pdf -- discarded
+```
+
+Anything not found is written as `null` with a `NOT FOUND ... transcribe by
+hand` citation, so gaps are visible in the file rather than surfacing as a
+crash later. Excerpts are matched against the *whole* document even when
+`--grep` narrowed the prompt, so narrowing can never cause a false rejection.
+
+**Verification is a person putting their name to a number.** `verify_bundle`
+shows the value, its citation and the excerpt it came from, and records
+`verified_by` and `verified_on`. The schema refuses to construct a
+`human_verified` value that names nobody. Use `--only setback_front` to
+re-check a single standard after an amendment.
+
+**The linter** catches the slips that are cheap to make and expensive to find:
+values outside a plausible range, a percentage entered as `0.4` instead of
+`40`, side and front setbacks swapped, a density stated two ways that
+disagree, and a `human_verified` value whose citation is still a placeholder.
+
 ### Command line
 
 The engine runs without Streamlit, an API key, or a network connection:
@@ -69,10 +120,11 @@ python analyze.py --district R-16 --acres 0.75 --strict   # refuses: standards u
 python -m pytest tests/ -q
 ```
 
-61 tests covering setback geometry against hand calculations, corner lots,
-irregular boundaries, easement subtraction, which constraint binds, and the
-validation layer that catches model output exceeding the envelope. See
-`tests/README.md`.
+89 tests covering setback geometry against hand calculations, corner lots,
+irregular boundaries, easement subtraction, which constraint binds, the
+validation layer that catches model output exceeding the envelope, and the
+transcription pipeline — including that a fabricated ordinance quote is
+rejected. See `tests/README.md`.
 
 Scope: zoning lookups are specific to Loudoun County, VA (the GIS endpoint and
 geocoding query are hardcoded to that jurisdiction). This is a feasibility
@@ -118,7 +170,10 @@ Run standalone with `uvicorn api.ingestion_service:app --reload --port 8000` (th
 | `engine/catalog.py` | District code → rule bundle, refusing to guess |
 | `reference/districts/` | Per-district rule bundles (currently placeholders) |
 | `reference/parcels/` | Sample parcel geometry |
-| `tests/` | 61 engine tests, offline |
+| `tools/extract_ordinance.py` | Draft a bundle from ordinance text; discards any value it cannot quote |
+| `tools/verify_bundle.py` | Interactive human review — the only path to `human_verified` |
+| `tools/lint_bundles.py` | Completeness, citation quality and plausibility checks |
+| `tests/` | 89 tests, offline |
 | `zoning.py` | Queries Loudoun County's zoning GIS endpoint |
 | `gpt_functions.py` | Asks Groq to allocate space within a computed envelope |
 | `layout_utils.py` | Renders lot, envelope and proposed building as a Plotly site plan |

@@ -41,6 +41,11 @@ def bundle(provenance: Provenance = Provenance.HUMAN_VERIFIED, **overrides) -> R
                 unit=UNITS[key],
                 citation=f"Testville Code sec. {i + 1}",
                 provenance=provenance,
+                verified_by=(
+                    "Test Reviewer"
+                    if provenance is Provenance.HUMAN_VERIFIED
+                    else None
+                ),
             )
             for i, (key, value) in enumerate(values.items())
         },
