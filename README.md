@@ -16,18 +16,6 @@ Both are one Streamlit app — Portfolio Intelligence shows up as a second page 
 
 Scope: zoning lookups are specific to Loudoun County, VA (the ArcGIS endpoint and geocoding query are hardcoded to that jurisdiction); concepts are a starting point for exploration, not a substitute for a licensed architect or zoning attorney.
 
-## 2. Portfolio Intelligence
-
-A real, end-to-end build of the pipeline described on the résumé — data ingestion, a medallion architecture, a trained ranking model, and an LLM executive report — run on **synthetic sample data** with **free, local tools** standing in for the production Databricks/AWS stack, so it runs on Streamlit Community Cloud's free tier with zero cloud credentials.
-
-| Résumé claim | What's real in this repo |
-| --- | --- |
-| Spatial data ingestion pipelines + ML site-ranking engine (Databricks AutoML, MLflow), 92% prediction accuracy | A real pipeline and a real trained model (`pipeline/train_model.py`) — logistic regression, random forest, and gradient boosting are trained and the best is kept by actual held-out test accuracy, using local scikit-learn instead of Databricks AutoML, with a JSON run log (`models/mlflow_runs.json`) standing in for MLflow. **The accuracy shown in the app is whatever the model actually scores — never hardcoded to match 92% or any other number.** |
-| FastAPI ingestion of 50M+ parcel/zoning records into AWS S3, Auto Loader, DLT | A real FastAPI service (`api/ingestion_service.py`, endpoints below) ingesting a synthetic, configurable-size sample (5K–50K rows) instead of 50M real records / real S3 |
-| Bronze/Silver/Gold medallion pipeline via LakeFlow + DLT, automated schema evolution and quality validation | A real medallion pipeline (`pipeline/medallion.py`) — DuckDB + Parquet Bronze/Silver/Gold layers with real quality checks (null/range validation, dedup) that quarantine genuinely bad synthetic rows, run locally instead of on Databricks LakeFlow/DLT |
-| GPT-4-powered executive intelligence engine | A real LLM report generator (`pipeline/executive_report.py`) synthesizing pipeline + model metrics into a markdown executive report, using Groq's GPT-OSS 120B (openai/gpt-oss-120b) instead of GPT-4. Falls back to a deterministic, numbers-only report if no API key is configured — the report view never breaks |
-| AWS/Databricks workspace (S3, AutoML, MLflow, LakeFlow, DLT) | Documented placeholder adapters in `pipeline/cloud_adapters.py` — each function names its local equivalent, sketches the real SDK calls, and raises a clear `NotImplementedError` until real credentials are wired in via `PIPELINE_BACKEND=databricks` |
-
 **Data provenance:** all parcel/zoning data is synthetically generated (`pipeline/generate_sample_data.py`), seeded for reproducibility, with field names and value ranges modeled on public Loudoun County parcel/zoning structure. It is not scraped or downloaded from any live system, and realistic data-quality issues (nulls, negative values, duplicates) are deliberately injected so the Silver-layer quality checks have real problems to catch.
 
 ### FastAPI service endpoints
